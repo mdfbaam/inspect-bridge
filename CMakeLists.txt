@@ -39,12 +39,20 @@ find_package(fmt REQUIRED)
 rosidl_generate_interfaces(
     ${PROJECT_NAME}
     "interfaces/act/Scan.action"
+    "interfaces/act/Polygonize.action"
+    "interfaces/act/New.action"
+    "interfaces/act/Write.action"
     DEPENDENCIES action_msgs std_msgs
 )
 
 rosidl_get_typesupport_target(CPP_TYPESUPPORT_TARGET ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # Actually create the nodes now.
+CreateNode(
+    NAME new
+    SOURCES src/act/new.cpp
+)
+
 CreateNode(
     NAME scan
     SOURCES src/act/scan.cpp
@@ -53,6 +61,11 @@ CreateNode(
 CreateNode(
     NAME polygonize
     SOURCES src/act/polygonize.cpp
+)
+
+CreateNode(
+    NAME write
+    SOURCES src/act/write.cpp
 )
 
 CreateNode(

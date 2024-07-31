@@ -1,0 +1,8 @@
+# Request
+string scan_series_name
+---
+# Result
+string out_path
+---
+# Feedback
+int32 progress

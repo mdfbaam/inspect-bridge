@@ -1,0 +1,8 @@
+# Request
+---
+# Result
+string point_cloud_out_path
+string stl_out_path
+---
+# Feedback
+int32 progress
