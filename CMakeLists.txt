@@ -13,9 +13,9 @@ function(CreateNode)
         $<INSTALL_INTERFACE:include>
     )
 
-    ament_target_dependencies(${MKNODE_NAME} rclcpp rclcpp_action fmt)
+    ament_target_dependencies(${MKNODE_NAME} rclcpp rclcpp_action fmt Boost nlohmann_json)
 
-    target_compile_features(${MKNODE_NAME} PUBLIC c_std_99 cxx_std_17)
+    target_compile_features(${MKNODE_NAME} PUBLIC c_std_99 cxx_std_20)
     target_compile_options(${MKNODE_NAME} PRIVATE -DFMT_HEADER_ONLY)
     target_link_libraries(${MKNODE_NAME} "${CPP_TYPESUPPORT_TARGET}")
 
@@ -33,7 +33,9 @@ find_package(rclcpp_action             REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 # External Dependencies
-find_package(fmt REQUIRED)
+find_package(fmt           REQUIRED)
+find_package(Boost         REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # Generate the ROS interfaces
 rosidl_generate_interfaces(

@@ -7,7 +7,7 @@
 #include <cxxabi.h>
 #endif
 
-namespace ornl::ros::ib {
+namespace ornl::ros::ib::util {
     /*!
      * \brief Demangles a type name by using the underlying demangle routine from the respective libc++
      * \param type_name: Name of type to demangle.

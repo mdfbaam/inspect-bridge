@@ -5,6 +5,9 @@
 #include <memory>
 #include <thread>
 
+// json
+#include <nlohmann/json.hpp>
+
 // ROS 2
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -12,6 +15,7 @@
 // Local
 #include "inspect_bridge/util/libfmt_compat.hpp"
 #include "inspect_bridge/util/demangle.hpp"
+#include "inspect_bridge/util/network.hpp"
 
 namespace ornl::ros::ib {
     template<typename p_action_t>
@@ -37,24 +41,24 @@ namespace ornl::ros::ib {
 
         protected:
             virtual rclcpp_action::GoalResponse enqueue([[maybe_unused]] const rclcpp_action::GoalUUID& uuid, [[maybe_unused]] std::shared_ptr<const typename action_t::Goal> goal) {
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Received goal request for generic action - goal_uuid: {}", demangle<action_t>(), uuid);
+                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Received goal request for generic action", util::demangle<action_t>());
                 return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
             }
 
-            virtual rclcpp_action::CancelResponse cancel(const std::shared_ptr<action_handle_t> handle) {
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Cancel request for generic action - goal_uuid: {}", demangle<action_t>(), handle->get_goal_id());
+            virtual rclcpp_action::CancelResponse cancel([[maybe_unused]] const std::shared_ptr<action_handle_t> handle) {
+                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Cancel request for generic action", util::demangle<action_t>());
                 return rclcpp_action::CancelResponse::ACCEPT;
             }
 
             virtual void accept(const std::shared_ptr<action_handle_t> handle) {
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Accepted request for generic action - goal_uuid: {}", demangle<action_t>(), handle->get_goal_id());
+                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Accepted request for generic action", util::demangle<action_t>());
 
                 std::thread thread = std::thread(std::bind(&this_t::execute, this, handle));
                 thread.detach();
             }
 
             virtual void execute(const std::shared_ptr<action_handle_t> handle) {
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Generic request begins...", demangle<action_t>());
+                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Generic request begins...", util::demangle<action_t>());
 
                 auto result = std::make_shared<typename action_t::Result>();
 
