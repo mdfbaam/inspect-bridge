@@ -5,4 +5,3 @@ string scan_series_name
 string out_path
 ---
 # Feedback
-int32 progress

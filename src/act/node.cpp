@@ -16,7 +16,8 @@ namespace ornl::ros::ib {
                     actions::Write(this, "write")
                 }
             {
-                // NOP
+                this->declare_parameter("inspect-hostname", "GOMPC.local");
+                this->declare_parameter("inspect-port",     "8901");
             }
 
         protected:
