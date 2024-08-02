@@ -5,7 +5,6 @@
 
 // Local
 #include "inspect_bridge/act/action_base.hpp"
-#include "inspect_bridge/util/paths.hpp"
 
 namespace ornl::ros::ib::actions {
     class New : ActionBase<inspect_bridge::action::New> {
@@ -20,13 +19,10 @@ namespace ornl::ros::ib::actions {
 
                 auto result = std::make_shared<typename base_t::action_t::Result>();
 
-                std::string path    = fmt::format("/mnt/c/ros/inspect/{}/", handle->get_goal()->scan_series_name);
-                std::string project = path + "project.zinspect";
-
                 nlohmann::json request;
 
-                request["command"]           = "new";
-                request["arguments"]["path"] = util::wsl_to_win_path(project);
+                request["command"]             = "new";
+                request["arguments"]["series"] = handle->get_goal()->scan_series_name;
 
                 RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
 
@@ -35,9 +31,8 @@ namespace ornl::ros::ib::actions {
                     m_node_ptr->get_parameter("inspect-port").as_string(),
                     request
                 );
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
 
-                result->out_path = path;
+                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
 
                 if (rclcpp::ok()) {
                     handle->succeed(result);
