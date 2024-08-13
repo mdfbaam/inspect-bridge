@@ -51,13 +51,13 @@ rosidl_get_typesupport_target(CPP_TYPESUPPORT_TARGET ${PROJECT_NAME} "rosidl_typ
 
 # Actually create the nodes now.
 CreateNode(
-    NAME action
-    SOURCES src/act/node.cpp
+    NAME action_node
+    SOURCES src/action_node.cpp
 )
 
 CreateNode(
-    NAME bridge
-    SOURCES src/service/bridge.cpp
+    NAME scan_coordinate_node
+    SOURCES src/scan_coordinate.cpp
 )
 
 if(BUILD_TESTING)

@@ -26,11 +26,19 @@ namespace ornl::ros::ib::actions {
 
                 RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
 
-                nlohmann::json response = util::request(
-                    m_node_ptr->get_parameter("inspect-hostname").as_string(),
-                    m_node_ptr->get_parameter("inspect-port").as_string(),
-                    request
-                );
+                nlohmann::json response;
+
+                try {
+                    response = util::request(
+                        m_node_ptr->get_parameter("inspect-hostname").as_string(),
+                        m_node_ptr->get_parameter("inspect-port").as_string(),
+                        request
+                    );
+                } catch(const std::exception& e) {
+                    RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad response from INSPECT, exception caught. [e.what() = {}]", e.what());
+                    handle->abort(result);
+                    return;
+                }
 
                 RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
 

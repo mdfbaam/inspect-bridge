@@ -16,8 +16,11 @@ namespace ornl::ros::ib {
                     actions::Write(this, "write")
                 }
             {
-                this->declare_parameter("inspect-hostname", "GOMPC.local");
+
+                this->declare_parameter("inspect-hostname", "192.168.1.59");
                 this->declare_parameter("inspect-port",     "8901");
+
+                RCLCPP_FMT_INFO(this->get_logger(), "INSPECT bridge action server now available");
             }
 
         protected:
