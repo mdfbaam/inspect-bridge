@@ -55,11 +55,6 @@ CreateNode(
     SOURCES src/action_node.cpp
 )
 
-CreateNode(
-    NAME scan_coordinate_node
-    SOURCES src/scan_coordinate.cpp
-)
-
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
     # the following line skips the linter which checks for copyrights
