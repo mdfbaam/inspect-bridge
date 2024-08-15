@@ -57,12 +57,84 @@ namespace ornl::ros::ib {
                 thread.detach();
             }
 
-            virtual void execute(const std::shared_ptr<action_handle_t> handle) {
+            virtual void execute_pre_hook([[maybe_unused]] const std::shared_ptr<action_handle_t> handle) {
                 RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "[with p_action_t = {}] Generic request begins...", util::demangle<action_t>());
+            }
 
+            /*!
+             * \brief Hook that allows customization of the json request object to INSPECT.
+             * \param handle: Handle for this action request.
+             * \return Request json object.
+             * \note The request object must have two keys - the "command" (string) and the "arguments" (object).
+             *       These are passed directly to the
+             */
+            virtual nlohmann::json execute_pack_hook([[maybe_unused]] const std::shared_ptr<action_handle_t> handle) {
+                nlohmann::json request;
+
+                request["command"]   = "dummy";
+                request["arguments"] = nlohmann::json::object();
+
+                return request;
+            }
+
+            /*!
+             * \brief Unpacks the result json object from INSPECT.
+             * \param handle: Handle for this action request.
+             * \param json_result: Result json representation from INSPECT.
+             * \return The ROS result object.
+             */
+            virtual std::shared_ptr<typename action_t::Result> execute_unpack_hook(
+                [[maybe_unused]] const std::shared_ptr<action_handle_t> handle,
+                [[maybe_unused]] nlohmann::json json_result
+            ) {
                 auto result = std::make_shared<typename action_t::Result>();
 
+                return result;
+            }
+
+            virtual void execute(const std::shared_ptr<action_handle_t> handle) {
+                this->execute_pre_hook(handle);
+
+                // Construct a request json.
+                nlohmann::json request = this->execute_pack_hook(handle);
+                nlohmann::json response;
+
+                bool execept = false;
+
+                // Send the requst to INSPECT.
+                if (!request.empty()) {
+                    RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
+                    try {
+                        response = util::request(
+                            m_node_ptr->get_parameter("inspect-hostname").as_string(),
+                            m_node_ptr->get_parameter("inspect-port").as_string(),
+                            request
+                        );
+                    } catch(const std::exception& e) {
+                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
+                        execept = true;
+                    }
+                }
+
+                std::shared_ptr<typename action_t::Result> result = nullptr;
+
+                // If everything looks okay, try to unpack the response.
+                if (!execept) {
+                    RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
+
+                    if (response["status"] == true) {
+                        result = this->execute_unpack_hook(handle, response["result"]);
+                    }
+                }
+
+                // Tell ROS the result.
                 if (rclcpp::ok()) {
+                    if (result == nullptr) {
+                        result = std::make_shared<typename action_t::Result>();
+                        handle->abort(result);
+                        return;
+                    }
+
                     handle->succeed(result);
                 }
             }

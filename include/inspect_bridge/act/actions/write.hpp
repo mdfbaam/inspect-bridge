@@ -20,28 +20,27 @@ namespace ornl::ros::ib::actions {
             using base_t::base_t;
 
         protected:
-            void execute(const std::shared_ptr<typename base_t::action_handle_t> handle) {
+            void execute_pre_hook([[maybe_unused]] const std::shared_ptr<typename base_t::action_handle_t> handle) {
                 RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Write begins...");
+            }
 
-                auto result = std::make_shared<typename base_t::action_t::Result>();
-
+            nlohmann::json execute_pack_hook([[maybe_unused]] const std::shared_ptr<typename base_t::action_handle_t> handle) {
                 nlohmann::json request;
 
                 request["command"]             = "write";
                 request["arguments"]["series"] = handle->get_goal()->scan_series_name;
 
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
+                return request;
+            }
 
-                nlohmann::json response = util::request(
-                    m_node_ptr->get_parameter("inspect-hostname").as_string(),
-                    m_node_ptr->get_parameter("inspect-port").as_string(),
-                    request
-                );
+            virtual std::shared_ptr<typename base_t::action_t::Result> execute_unpack_hook(
+                [[maybe_unused]] const std::shared_ptr<typename base_t::action_handle_t> handle,
+                [[maybe_unused]] nlohmann::json json_result
+            ) {
+                auto result = std::make_shared<typename base_t::action_t::Result>();
 
-                RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response truncated");
-
-                std::vector<char> stl_data = base64::decode_into<std::vector<char>>(std::string(response["result"]["stl64"]));
-                std::string asc_data       = base64::decode_into<std::string>(std::string(response["result"]["asc64"]));
+                std::vector<char> stl_data = base64::decode_into<std::vector<char>>(std::string(json_result["stl64"]));
+                std::string asc_data       = base64::decode_into<std::string>(std::string(json_result["asc64"]));
 
                 std::ofstream stl_out("/home/gom/stl_out.stl", std::ios::out | std::ios::binary);
                 stl_out.write(reinterpret_cast<const char*>(stl_data.data()), stl_data.size());
@@ -51,9 +50,7 @@ namespace ornl::ros::ib::actions {
                 asc_out.write(reinterpret_cast<const char*>(asc_data.data()), asc_data.size());
                 asc_out.close();
 
-                if (rclcpp::ok()) {
-                    handle->succeed(result);
-                }
+                return result;
             }
     };
 }

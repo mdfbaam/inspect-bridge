@@ -26,7 +26,12 @@ namespace ornl::ros::ib::util {
         boost::asio::connect(socket, endpoints);
 
         boost::system::error_code ignored_error;
-        boost::asio::write(socket, boost::asio::buffer(command.dump(4)), ignored_error);
+
+        std::string dump = command.dump(4);
+        std::size_t size = dump.length();
+
+        boost::asio::write(socket, boost::asio::buffer(&size, sizeof(size)), ignored_error);
+        boost::asio::write(socket, boost::asio::buffer(dump), ignored_error);
 
         std::string result_str;
 

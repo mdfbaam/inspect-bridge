@@ -40,6 +40,8 @@ find_package(nlohmann_json REQUIRED)
 # Generate the ROS interfaces
 rosidl_generate_interfaces(
     ${PROJECT_NAME}
+    "interfaces/act/Cad.action"
+    "interfaces/act/Calibrate.action"
     "interfaces/act/Scan.action"
     "interfaces/act/Polygonize.action"
     "interfaces/act/New.action"
