@@ -6,9 +6,6 @@
 // ROS 2 Interfaces (Generated)
 #include "inspect_bridge/action/write.hpp"
 
-// Contrib
-#include "inspect_bridge/contrib/base64.hpp"
-
 // Local
 #include "inspect_bridge/act/action_base.hpp"
 
@@ -39,6 +36,7 @@ namespace ornl::ros::ib::actions {
             ) {
                 auto result = std::make_shared<typename base_t::action_t::Result>();
 
+                /*
                 std::vector<char> stl_data = base64::decode_into<std::vector<char>>(std::string(json_result["stl64"]));
                 std::string asc_data       = base64::decode_into<std::string>(std::string(json_result["asc64"]));
 
@@ -49,6 +47,7 @@ namespace ornl::ros::ib::actions {
                 std::ofstream asc_out("/home/gom/asc_out.asc", std::ios::out | std::ios::binary);
                 asc_out.write(reinterpret_cast<const char*>(asc_data.data()), asc_data.size());
                 asc_out.close();
+                */
 
                 return result;
             }

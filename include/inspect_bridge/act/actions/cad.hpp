@@ -6,9 +6,6 @@
 // ROS 2 Interfaces (Generated)
 #include "inspect_bridge/action/cad.hpp"
 
-// Contrib
-#include "inspect_bridge/contrib/base64.hpp"
-
 // Local
 #include "inspect_bridge/act/action_base.hpp"
 
@@ -27,6 +24,7 @@ namespace ornl::ros::ib::actions {
             nlohmann::json execute_pack_hook([[maybe_unused]] const std::shared_ptr<typename base_t::action_handle_t> handle) {
                 nlohmann::json request;
 
+                /*
                 std::string stl_path = "/ros/stl/platypus Modified_noBeads.stl";
                 std::ifstream stl_in(stl_path, std::ios::in | std::ios::binary);
                 if(!stl_in.is_open()) {
@@ -36,9 +34,10 @@ namespace ornl::ros::ib::actions {
                 std::string stl = std::string { std::istreambuf_iterator<char>(stl_in), std::istreambuf_iterator<char>() };
 
                 std::string stl64 = base64::encode_into<std::string>(stl);
+                */
 
                 request["command"]   		  = "cad";
-                request["arguments"]["stl64"] = stl64;
+                request["arguments"]["stl64"] = handle->get_goal()->stl64;
 
                 return request;
             }

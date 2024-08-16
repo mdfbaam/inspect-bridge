@@ -101,6 +101,8 @@ namespace ornl::ros::ib {
 
                 bool execept = false;
 
+                std::shared_ptr<typename action_t::Result> result = nullptr;
+
                 // Send the requst to INSPECT.
                 if (!request.empty()) {
                     RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
@@ -114,16 +116,14 @@ namespace ornl::ros::ib {
                         RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
                         execept = true;
                     }
-                }
 
-                std::shared_ptr<typename action_t::Result> result = nullptr;
+                    // If everything looks okay, try to unpack the response.
+                    if (!execept) {
+                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
 
-                // If everything looks okay, try to unpack the response.
-                if (!execept) {
-                    RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
-
-                    if (response["status"] == true) {
-                        result = this->execute_unpack_hook(handle, response["result"]);
+                        if (response["status"] == true) {
+                            result = this->execute_unpack_hook(handle, response["result"]);
+                        }
                     }
                 }
 
