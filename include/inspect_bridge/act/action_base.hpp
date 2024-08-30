@@ -104,27 +104,32 @@ namespace ornl::ros::ib {
                 std::shared_ptr<typename action_t::Result> result = nullptr;
 
                 // Send the requst to INSPECT.
-                if (!request.empty()) {
-                    RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
-                    try {
-                        response = util::request(
-                            m_node_ptr->get_parameter("inspect-hostname").as_string(),
-                            m_node_ptr->get_parameter("inspect-port").as_string(),
-                            request
-                        );
-                    } catch(const std::exception& e) {
-                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
-                        execept = true;
-                    }
+                if (!m_node_ptr->get_parameter("dummy").as_bool()) {
+                    if (!request.empty()) {
+                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
+                        try {
+                            response = util::request(
+                                m_node_ptr->get_parameter("inspect-hostname").as_string(),
+                                m_node_ptr->get_parameter("inspect-port").as_string(),
+                                request
+                            );
+                        } catch(const std::exception& e) {
+                            RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
+                            execept = true;
+                        }
 
-                    // If everything looks okay, try to unpack the response.
-                    if (!execept) {
-                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
+                        // If everything looks okay, try to unpack the response.
+                        if (!execept) {
+                            RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
 
-                        if (response["status"] == true) {
-                            result = this->execute_unpack_hook(handle, response["result"]);
+                            if (response["status"] == true) {
+                                result = this->execute_unpack_hook(handle, response["result"]);
+                            }
                         }
                     }
+                } else {
+                    RCLCPP_WARN(m_node_ptr->get_logger(), "Dummy mode is enabled, not sending request to INSPECT.");
+                    result = std::make_shared<typename action_t::Result>();
                 }
 
                 // Tell ROS the result.
