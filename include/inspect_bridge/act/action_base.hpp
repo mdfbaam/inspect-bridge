@@ -45,7 +45,7 @@ namespace ornl::ros::ib {
                 m_node_ptr = node_ptr;
                 m_server = rclcpp_action::create_server<action_t>(
                     m_node_ptr,
-                    fmt::format("/inspect_bridge/{}", action_name),
+                    fmt::format("inspect_bridge/{}", action_name),
                     std::bind(&this_t::enqueue, this, _1, _2),
                     std::bind(&this_t::cancel,  this, _1),
                     std::bind(&this_t::accept,  this, _1)
