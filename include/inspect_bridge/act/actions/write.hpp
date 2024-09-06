@@ -36,18 +36,8 @@ namespace ornl::ros::ib::actions {
             ) {
                 auto result = std::make_shared<typename base_t::action_t::Result>();
 
-                /*
-                std::vector<char> stl_data = base64::decode_into<std::vector<char>>(std::string(json_result["stl64"]));
-                std::string asc_data       = base64::decode_into<std::string>(std::string(json_result["asc64"]));
-
-                std::ofstream stl_out("/home/gom/stl_out.stl", std::ios::out | std::ios::binary);
-                stl_out.write(reinterpret_cast<const char*>(stl_data.data()), stl_data.size());
-                stl_out.close();
-
-                std::ofstream asc_out("/home/gom/asc_out.asc", std::ios::out | std::ios::binary);
-                asc_out.write(reinterpret_cast<const char*>(asc_data.data()), asc_data.size());
-                asc_out.close();
-                */
+                result->stl64 = json_result["stl64"];
+                result->asc64 = json_result["asc64"];
 
                 return result;
             }

@@ -2,5 +2,7 @@
 string scan_series_name
 ---
 # Result
+string stl64
+string asc64
 ---
 # Feedback

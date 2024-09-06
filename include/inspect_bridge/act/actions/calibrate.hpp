@@ -1,15 +1,15 @@
 #pragma once
 
 // ROS 2 Interfaces (Generated)
-#include "inspect_bridge/action/calibrate.hpp"
+#include "inspect_bridge/action/empty.hpp"
 
 // Local
 #include "inspect_bridge/act/action_base.hpp"
 
 namespace ornl::ros::ib::actions {
-    class Calibrate : ActionBase<inspect_bridge::action::Calibrate> {
+    class Calibrate : ActionBase<inspect_bridge::action::Empty> {
         public:
-            using base_t = ActionBase<inspect_bridge::action::Calibrate>;
+            using base_t = ActionBase<inspect_bridge::action::Empty>;
 
             using base_t::base_t;
 

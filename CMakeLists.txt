@@ -41,9 +41,8 @@ find_package(nlohmann_json REQUIRED)
 rosidl_generate_interfaces(
     ${PROJECT_NAME}
     "interfaces/act/Cad.action"
-    "interfaces/act/Calibrate.action"
+    "interfaces/act/Empty.action"
     "interfaces/act/Scan.action"
-    "interfaces/act/Polygonize.action"
     "interfaces/act/New.action"
     "interfaces/act/Write.action"
     DEPENDENCIES action_msgs std_msgs
@@ -55,11 +54,6 @@ rosidl_get_typesupport_target(CPP_TYPESUPPORT_TARGET ${PROJECT_NAME} "rosidl_typ
 CreateNode(
     NAME action_node
     SOURCES src/action_node.cpp
-)
-
-CreateNode(
-    NAME dummy
-    SOURCES src/dummy.cpp
 )
 
 if(BUILD_TESTING)

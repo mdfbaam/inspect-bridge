@@ -18,6 +18,19 @@
 #include "inspect_bridge/util/network.hpp"
 
 namespace ornl::ros::ib {
+    inline std::string json_to_string(const nlohmann::json& j) {
+        if (j.contains("result") && j["result"].contains("stl64") && !j["result"]["stl64"].empty()){
+            return fmt::format("{{\n    ...truncated...\n    \"status\": {}\n}}", bool(j["status"]));
+        } else if (
+            (j.contains("arguments") && j["arguments"].contains("stl64")      && !j["arguments"]["stl64"].empty())      ||
+            (j.contains("arguments") && j["arguments"].contains("template64") && !j["arguments"]["template64"].empty())
+        ) {
+            return fmt::format("{{\n    ...truncated...\n    \"command\": {}\n}}", j["command"]);
+        }
+
+        return j.dump(4);
+    }
+
     template<typename p_action_t>
     class ActionBase {
         public:
@@ -71,7 +84,7 @@ namespace ornl::ros::ib {
             virtual nlohmann::json execute_pack_hook([[maybe_unused]] const std::shared_ptr<action_handle_t> handle) {
                 nlohmann::json request;
 
-                request["command"]   = "dummy";
+                request["command"]   = "empty_command";
                 request["arguments"] = nlohmann::json::object();
 
                 return request;
@@ -106,7 +119,7 @@ namespace ornl::ros::ib {
                 // Send the requst to INSPECT.
                 if (!m_node_ptr->get_parameter("dummy").as_bool()) {
                     if (!request.empty()) {
-                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", request.dump(4));
+                        RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Sending INSPECT request; request = {}", json_to_string(request));
                         try {
                             response = util::request(
                                 m_node_ptr->get_parameter("inspect-hostname").as_string(),
@@ -114,13 +127,13 @@ namespace ornl::ros::ib {
                                 request
                             );
                         } catch(const std::exception& e) {
-                            RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
+                            RCLCPP_FMT_ERROR(m_node_ptr->get_logger(), "Bad/no response from INSPECT, exception caught. [e.what() = {}]", e.what());
                             execept = true;
                         }
 
                         // If everything looks okay, try to unpack the response.
                         if (!execept) {
-                            RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", response.dump(4));
+                            RCLCPP_FMT_INFO(m_node_ptr->get_logger(), "INSPECT replied; response = {}", json_to_string(response));
 
                             if (response["status"] == true) {
                                 result = this->execute_unpack_hook(handle, response["result"]);
